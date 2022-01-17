@@ -12,116 +12,35 @@ import {
   Th,
   Td,
   TableCaption,
-  Container
+  Container,
+  useDisclosure
 } from '@chakra-ui/react'
 
-import InputForm from '../components/InputForm'
 import api from '../services/api'
 
-interface clientsProps {
-  id: string
-  name: string
-  email: string
-}
+import { InputForm, ModalForm } from '../components'
 
-interface errorsProps {
-  name?: string
-  email?: string
-}
+import { clientsProps } from "../components/ModalForm";
 
 const Home: NextPage = () => {
+  const { isOpen, onOpen } = useDisclosure()
   const [clients, setClients] = useState<clientsProps[]>([])
-  const [isFormOpen, setIsFormOpen] = useState(false)
-
-  const [id, setId] = useState('')
   const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
+  // const handleDeleteClient = async (id: string) => {
+  //   try {
+  //     await api.delete(`/clients/${id}`)
+  //     setClients(clients.filter(client => client.id !== id))
+  //   } catch (error) {
+  //     console.log(error)
+  //   }
+  // }
 
-  const [errors, setErrors] = useState<errorsProps>()
-
-  const isValidateForm = () => {
-    if (!name) {
-      setErrors({
-        name: 'Name is required'
-      })
-      return false
-    }
-
-    if (!email) {
-      setErrors({
-        email: 'E-Mail is required'
-      })
-      return false
-    }
-
-    if (
-      clients.some(client => {
-        client.email === email && client.id !== id
-      })
-    ) {
-      setErrors({ email: 'E-Mail already in use' })
-      return
-    }
-
-    setErrors({})
-    return true
-  }
-
-  const handleCreateClient = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!isValidateForm()) return
-
-    try {
-      const { data } = await api.post('/clients', { name, email })
-
-      setClients(clients.concat(data.data))
-      setName('')
-      setEmail('')
-      setIsFormOpen(false)
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  const handleUpdateClient = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!name && !email) return
-
-    try {
-      await api.put(`/clientes/${id}`, { name, email })
-
-      setClients(
-        clients.map(client =>
-          client.id === id ? { id: id, name, email } : client
-        )
-        )
-
-      setId('')
-      setName('')
-      setEmail('')
-      setIsFormOpen(false)
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  const handleShowUpdateClient = ({ id, name, email }: clientsProps) => {
-    setId(id)
-    setName(name)
-    setEmail(email)
-    setIsFormOpen(true)
-  }
-
-  const handleDeleteClient = async (id: string) => {
-    try {
-      await api.delete(`/clients/${id}`)
-      setClients(clients.filter(client => client.id !== id))
-    } catch (error) {
-      console.log(error)
-    }
-  }
+  // const handleShowUpdateClient = ({ id, name, email }: clientsProps) => {
+  //   setId(id)
+  //   setName(name)
+  //   setEmail(email)
+  //   setIsFormOpen(true)
+  // }
 
   useEffect(() => {
     api.get('/clients').then(({ data }) => {
@@ -150,48 +69,16 @@ const Home: NextPage = () => {
 
         <Button
           colorScheme="facebook"
-          onClick={() => setIsFormOpen(!isFormOpen)}
+          onClick={onOpen}
         >
-          {isFormOpen ? '-' : '+'}
         </Button>
+        <ModalForm
+          state={isOpen}
+          name={name}
+          setName={setName}
+        />
       </Flex>
-      {isFormOpen
-? (
-        <VStack
-          marginY="1rem"
-          as="form"
-          onSubmit={id ? handleUpdateClient : handleCreateClient}
-        >
-          <InputForm
-            label="Name"
-            name="name"
-            type="text"
-            value={name}
-            error={errors?.name}
-            onChange={e => setName(e.target.value)}
-          />
-
-          <InputForm
-            label="E-Mail"
-            name="email"
-            type="email"
-            value={email}
-            error={errors?.email}
-            onChange={e => setEmail(e.target.value)}
-          />
-
-          <Button
-            colorScheme="blue"
-            fontSize="sm"
-            alignSelf="flex-end"
-            type="submit"
-          >
-            {id ? 'Atualizar' : 'Cadastrar'}
-          </Button>
-        </VStack>
-      )
-        : <></>
-      )}
+      
       <Table variant="simple" marginY="10">
         <TableCaption>Imperial to metric conversion factors</TableCaption>
         <Thead bgColor="blue.500">
@@ -212,7 +99,7 @@ const Home: NextPage = () => {
                     size="sm"
                     fontSize="smaller"
                     colorScheme="green"
-                    onClick={() => handleShowUpdateClient(cliente)}
+                    // onClick={() => handleShowUpdateClient(cliente)}
                   >
                     Editar
                   </Button>
@@ -220,7 +107,7 @@ const Home: NextPage = () => {
                     size="sm"
                     fontSize="smaller"
                     colorScheme="red"
-                    onClick={() => handleDeleteClient(cliente.id)}
+                    // onClick={() => handleDeleteClient(cliente.id)}
                   >
                     Remover
                   </Button>

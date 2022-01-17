@@ -8,9 +8,6 @@ async function dbConnect() {
       .connect(process.env.NEXT_PUBLIC_MONGODB_URI!, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
-        // useCreateIndex: true,
-        // useFindAndModify: false,
-        // poolSize: parseInt(process.env.POOL_SIZE!),
       } as ConnectOptions)
       .then((res) => {
         console.log(

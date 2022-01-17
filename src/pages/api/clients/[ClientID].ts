@@ -16,6 +16,7 @@ export default async function handler(
     case 'PUT':
       try {
         const { name, email } = req.body;
+        console.log(name, email, req.query);
 
         if(!name && !email) throw 'Invalid data';
 
